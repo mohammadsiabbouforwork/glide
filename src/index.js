@@ -106,7 +106,6 @@ export default class Glide {
   move (distance) {
     this._c.Transition.disable()
     this._c.Move.make(distance)
-
     return this
   }
 

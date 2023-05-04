@@ -1,6 +1,6 @@
-import { warn } from '../utils/log'
-import { toInt } from '../utils/unit'
-import { define } from '../utils/object'
+import {warn} from '../utils/log'
+import {toInt} from '../utils/unit'
+import {define} from '../utils/object'
 
 export default function (Glide, Components, Events) {
   const Run = {
@@ -9,7 +9,7 @@ export default function (Glide, Components, Events) {
      *
      * @return {Void}
      */
-    mount () {
+    mount() {
       this._o = false
     },
 
@@ -18,7 +18,7 @@ export default function (Glide, Components, Events) {
      *
      * @param {String} move
      */
-    make (move) {
+    make(move) {
       if (!Glide.disabled) {
         !Glide.settings.waitForTransition || Glide.disable()
 
@@ -57,9 +57,9 @@ export default function (Glide, Components, Events) {
      *
      * @return {Number|Undefined}
      */
-    calculate () {
-      const { move, length } = this
-      const { steps, direction } = move
+    calculate() {
+      const {move, length} = this
+      const {steps, direction} = move
 
       // By default assume that size of view is equal to one slide
       let viewSize = 1
@@ -67,9 +67,9 @@ export default function (Glide, Components, Events) {
       // While direction is `=` we want jump to
       // a specified index described in steps.
       if (direction === '=') {
-        // Check if bound is true, 
+        // Check if bound is true,
         // as we want to avoid whitespaces.
-        if( Glide.settings.bound && toInt(steps) > length ) {
+        if (Glide.settings.bound && toInt(steps) > length) {
           Glide.index = length
           return
         }
@@ -134,7 +134,7 @@ export default function (Glide, Components, Events) {
      *
      * @return {Boolean}
      */
-    isStart () {
+    isStart() {
       return Glide.index <= 0
     },
 
@@ -143,7 +143,7 @@ export default function (Glide, Components, Events) {
      *
      * @return {Boolean}
      */
-    isEnd () {
+    isEnd() {
       return Glide.index >= this.length
     },
 
@@ -153,7 +153,7 @@ export default function (Glide, Components, Events) {
      * @param {String} direction
      * @return {Boolean}
      */
-    isOffset (direction = undefined) {
+    isOffset(direction = undefined) {
       if (!direction) {
         return this._o
       }
@@ -180,7 +180,7 @@ export default function (Glide, Components, Events) {
      *
      * @return {Boolean}
      */
-    isBound () {
+    isBound() {
       return Glide.isType('slider') && Glide.settings.focusAt !== 'center' && Glide.settings.bound
     }
   }
@@ -191,8 +191,8 @@ export default function (Glide, Components, Events) {
    * @param viewSize
    * @returns {Number}
    */
-  function calculateForwardIndex (viewSize) {
-    const { index } = Glide
+  function calculateForwardIndex(viewSize) {
+    const {index} = Glide
 
     if (Glide.isType('carousel')) {
       return index + viewSize
@@ -209,10 +209,12 @@ export default function (Glide, Components, Events) {
    * @param viewSize
    * @returns {Number}
    */
-  function normalizeForwardIndex (index, viewSize) {
-    const { length } = Run
+  function normalizeForwardIndex(index, viewSize) {
+    const {length} = Run
+    const viewLength = (length + 1) - Glide.settings.perView
 
-    if (index <= length) {
+    const viewValue = Glide.isType("slider") ? viewLength : length;
+    if (index <= viewValue) {
       return index
     }
 
@@ -221,20 +223,20 @@ export default function (Glide, Components, Events) {
     }
 
     if (Glide.settings.rewind) {
-      // bound does funny things with the length, therefor we have to be certain
+      // bound does funny things with the viewLength, therefor we have to be certain
       // that we are on the last possible index value given by bound
       if (Run.isBound() && !Run.isEnd()) {
-        return length
+        return viewLength
       }
 
       return 0
     }
 
     if (Run.isBound()) {
-      return length
+      return viewLength
     }
 
-    return Math.floor(length / viewSize) * viewSize
+    return Math.floor(viewLength / viewSize) * viewSize
   }
 
   /**
@@ -243,8 +245,9 @@ export default function (Glide, Components, Events) {
    * @param viewSize
    * @returns {Number}
    */
-  function calculateBackwardIndex (viewSize) {
-    const { index } = Glide
+  function calculateBackwardIndex(viewSize) {
+    const {index} = Glide
+    const {length} = Run
 
     if (Glide.isType('carousel')) {
       return index - viewSize
@@ -254,7 +257,10 @@ export default function (Glide, Components, Events) {
     // to experience a homogeneous paging
     const view = Math.ceil(index / viewSize)
 
-    return (view - 1) * viewSize
+    const rewind = Glide.isType("slider") ? Glide.settings.rewind : true;
+    return index === 0
+      ? (rewind ? (length + 1) - Glide.settings.perView ?? 0 : 0)
+      : (view - 1) * viewSize
   }
 
   /**
@@ -265,8 +271,8 @@ export default function (Glide, Components, Events) {
    * @param viewSize
    * @returns {*}
    */
-  function normalizeBackwardIndex (index, viewSize) {
-    const { length } = Run
+  function normalizeBackwardIndex(index, viewSize) {
+    const {length} = Run
 
     if (index >= 0) {
       return index
@@ -295,7 +301,7 @@ export default function (Glide, Components, Events) {
      *
      * @returns {Object}
      */
-    get () {
+    get() {
       return this._m
     },
 
@@ -304,7 +310,7 @@ export default function (Glide, Components, Events) {
      *
      * @returns {Object}
      */
-    set (value) {
+    set(value) {
       let step = value.substr(1)
 
       this._m = {
@@ -321,9 +327,9 @@ export default function (Glide, Components, Events) {
      *
      * @return {Number}
      */
-    get () {
-      let { settings } = Glide
-      let { length } = Components.Html.slides
+    get() {
+      let {settings} = Glide
+      let {length} = Components.Html.slides
 
       // If the `bound` option is active, a maximum running distance should be
       // reduced by `perView` and `focusAt` settings. Running distance
@@ -342,7 +348,7 @@ export default function (Glide, Components, Events) {
      *
      * @return {Boolean}
      */
-    get () {
+    get() {
       return this._o
     }
   })
