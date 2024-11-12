@@ -1,15 +1,15 @@
-<!doctype html>
-<html lang="en" dir="rtl">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="/css/glide.core.css">
-    <title>Tests</title>
+    <title>Update test</title>
     <style>
         .glide__slide {
-            background: linear-gradient(-45deg, #029d00, #00ff7e);
+            background: linear-gradient(-45deg, #9d0000, #ff0000);
             height: 10rem;
             display: grid;
             font-size: 2rem;
@@ -41,7 +41,7 @@
 
         .glide__bullet {
             margin-top: 1rem;
-            background: #009e35;
+            background: #9e0000;
             display: block;
             border-radius: 100%;
         }
@@ -53,8 +53,11 @@
     </style>
 </head>
 <body>
-<button type="button" id="add">add</button>
 <div id="glide" class="glide">
+    <button id="togglePerView">
+        toggle per view
+    </button>
+
     <div data-glide-el="controls" class="glide__arrows">
         <button class="glide__arrow glide__arrow--start" data-glide-dir="<<">start</button>
         <button class="glide__arrow glide__arrow--start" data-glide-dir="|<">prev viewport</button>
@@ -70,8 +73,8 @@
         <button class="glide__bullet" data-glide-dir="=2">2</button>
         <button class="glide__bullet" data-glide-dir="=3">3</button>
         <button class="glide__bullet" data-glide-dir="=4">4</button>
-        <button class="glide__bullet" data-glide-dir="=5">5</button>
-        <button class="glide__bullet" data-glide-dir="=6">6</button>
+        <!--        <button class="glide__bullet" data-glide-dir="=5">5</button>-->
+        <!--        <button class="glide__bullet" data-glide-dir="=6">6</button>-->
     </div>
 
     <div data-glide-el="bullets">
@@ -81,55 +84,67 @@
     <div data-glide-el="track" class="glide__track">
         <ul class="glide__slides">
             <li class="glide__slide">0</li>
-                        <li class="glide__slide">1</li>
-                        <li class="glide__slide">2</li>
-                        <li class="glide__slide">3</li>
-                        <li class="glide__slide">4</li>
-                        <li class="glide__slide">5</li>
-                        <li class="glide__slide">6</li>
+            <li class="glide__slide">1</li>
+            <li class="glide__slide">2</li>
+            <li class="glide__slide">3</li>
+            <li class="glide__slide">4</li>
         </ul>
     </div>
 </div>
+</body>
 <script src="/glide.js"></script>
 <script>
     const OPTIONS = {
         type: 'slider',
         startAt: 0,
-        perView: 1,
+        perView: 3,
         rewind: false,
         showPaginationNumbers: true,
-        dir : "rtl",
         peek: {
             before: 0,
             after: 0
         },
-        breakpoints: {
-            1024: {
-                perView: 2
-            },
-            600: {
-                perView: 1,
-                // peek: {
-                //     before: 0,
-                //     after: 0
-                // },
-            }
-        }
     };
+
     const el = new Glide("#glide", OPTIONS).mount();
+    let isOpen = false;
 
-    console.log({el});
+    // document.querySelector('#togglePerView').addEventListener('click', () => {
+    //     console.log({isOpen});
+    //     if (isOpen) {
+    //         isOpen = false;
+    //         el.update({perView: 3});
+    //         return;
+    //     }
+    //
+    //     el.update({perView: 2});
+    //     isOpen  = true;
+    // });
 
-    document.getElementById("add").addEventListener("click", function () {
-        el.destroy();
+    const productsMenuPopupMediaQuery = matchMedia("(max-width: 1248px) and (min-height: 740px)");
+    // productsMenuPopupMediaQuery.addEventListener("change", handleMediaQueryChange);
 
-        const slide = document.createElement("li");
-        slide.classList.add("glide__slide");
-        slide.innerHTML = (document.querySelectorAll(".glide__slides li").length + 1).toString();
+    el.on('resize', function () {
+        if (productsMenuPopupMediaQuery.matches) {
+            el?.update({perView: 2});
+            console.log("show 2", el?.index);
+            return;
+        }
 
-        document.querySelector(".glide__slides").append(slide)
-        new Glide("#glide", OPTIONS).mount();
+        el?.update({perView: 3});
+        console.log("show 3", el?.index);
     });
+
+    // window.addEventListener('resize', handleMediaQueryChange);
+    //
+    // function handleMediaQueryChange(event) {
+    //     if (event.matches) {
+    //     } else {
+    //         el?.update({
+    //             perView: 3,
+    //         });
+    //         console.log("show 3", el?.index);
+    //     }
+    // }
 </script>
-</body>
 </html>
